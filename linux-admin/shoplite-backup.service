@@ -1,0 +1,13 @@
+[Unit]
+Description=ShopLite PostgreSQL Automated Backup Service
+After=network.target docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+User=root
+EnvironmentFile=-/etc/default/shoplite-backup
+ExecStart=/opt/shoplite/scripts/backup-postgres.sh
+StandardOutput=journal
+StandardError=journal
+
