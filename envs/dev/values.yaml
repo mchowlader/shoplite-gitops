@@ -1,0 +1,14 @@
+# ==============================================================================
+# ShopLite: Development Environment Helm Values
+# ==============================================================================
+environment: dev
+
+replicaCount:
+  web: 2
+  catalogApi: 2
+  orderWorker: 1
+
+ingress:
+  enabled: true
+  className: nginx
+  host: dev.shoplite.local

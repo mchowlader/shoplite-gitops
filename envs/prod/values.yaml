@@ -1,0 +1,14 @@
+# ==============================================================================
+# ShopLite: Production Environment Helm Values
+# ==============================================================================
+environment: prod
+
+replicaCount:
+  web: 2
+  catalogApi: 3
+  orderWorker: 2
+
+ingress:
+  enabled: true
+  className: nginx
+  host: shoplite.prod.local
