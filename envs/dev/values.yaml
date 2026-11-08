@@ -12,3 +12,4 @@ ingress:
   enabled: true
   className: nginx
   host: dev.shoplite.local
+

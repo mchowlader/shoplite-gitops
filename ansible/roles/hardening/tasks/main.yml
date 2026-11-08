@@ -1,0 +1,79 @@
+---
+# ==============================================================================
+# Role: hardening — Linux Security Hardening, RBAC, and Backup Automations (Question 3 & 4.g)
+# ==============================================================================
+
+- name: Deploy OpenSSH security hardening configuration
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../linux-admin/sshd_shoplite.conf"
+    dest: /etc/ssh/sshd_config.d/99-shoplite.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Reload SSH Service
+
+- name: Ensure shoplite service group exists
+  ansible.builtin.group:
+    name: shoplite
+    state: present
+    gid: 1001
+
+- name: Ensure shoplite least-privilege system user exists
+  ansible.builtin.user:
+    name: shoplite
+    group: shoplite
+    uid: 1001
+    shell: /bin/bash
+    home: /home/shoplite
+    create_home: true
+    state: present
+
+- name: Configure restricted sudoers permissions for shoplite user
+  ansible.builtin.copy:
+    dest: /etc/sudoers.d/99-shoplite
+    owner: root
+    group: root
+    mode: '0440'
+    validate: '/usr/sbin/visudo -cf %s'
+    content: |
+      # Least-privilege sudoers rule for ShopLite maintenance
+      shoplite ALL=(ALL) NOPASSWD: /usr/bin/systemctl status shoplite-*, /usr/bin/journalctl -u shoplite-*, /opt/shoplite/scripts/*
+
+- name: Create ShopLite operational scripts directory
+  ansible.builtin.file:
+    path: /opt/shoplite/scripts
+    state: directory
+    owner: root
+    group: shoplite
+    mode: '0750'
+
+- name: Deploy automated PostgreSQL backup script
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../linux-admin/backup-postgres.sh"
+    dest: /opt/shoplite/scripts/backup-postgres.sh
+    owner: root
+    group: shoplite
+    mode: '0750'
+
+- name: Deploy backup systemd service unit
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../linux-admin/shoplite-backup.service"
+    dest: /etc/systemd/system/shoplite-backup.service
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Deploy backup systemd daily timer unit
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../linux-admin/shoplite-backup.timer"
+    dest: /etc/systemd/system/shoplite-backup.timer
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Reload systemd daemon and activate daily backup timer
+  ansible.builtin.systemd:
+    name: shoplite-backup.timer
+    state: started
+    enabled: true
+    daemon_reload: true
