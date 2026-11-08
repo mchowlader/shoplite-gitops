@@ -109,3 +109,4 @@
     - name: Print live Kubernetes cluster status
       ansible.builtin.debug:
         var: cluster_nodes.stdout_lines
+

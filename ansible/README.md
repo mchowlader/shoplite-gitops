@@ -65,3 +65,4 @@ cp-node-1       Ready    control-plane   5m    v1.30.0   10.0.10.187   Ubuntu 24
 worker-node-1   Ready    <none>          3m    v1.30.0   10.0.10.106   Ubuntu 24.04 LTS     6.8.0-aws
 worker-node-2   Ready    <none>          3m    v1.30.0   10.0.20.42    Ubuntu 24.04 LTS     6.8.0-aws
 ```
+
