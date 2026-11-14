@@ -36,16 +36,24 @@ TARGET="${BACKUP_DIR}/${FILENAME}"
 mkdir -p "${BACKUP_DIR}"
 chmod 700 "${BACKUP_DIR}"
 
-echo "[INFO] Starting database backup for '${DB_NAME}' from container '${CONTAINER_NAME}'..."
+echo "[INFO] Starting database backup for '${DB_NAME}'..."
 
-# Verify docker container is running
-if ! docker ps --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
-    echo "[ERROR] Container '${CONTAINER_NAME}' is not running!" >&2
+# Smart Auto-Detection: Kubernetes (kubectl), containerd (crictl), or Docker
+if command -v kubectl >/dev/null 2>&1 && kubectl get pod -l app.kubernetes.io/component=postgres -n shoplite >/dev/null 2>&1; then
+    TARGET_POD=$(kubectl get pod -l app.kubernetes.io/component=postgres -n shoplite -o jsonpath='{.items[0].metadata.name}')
+    echo "[INFO] Running pg_dump via Kubernetes Pod: ${TARGET_POD} in namespace 'shoplite'..."
+    kubectl exec -n shoplite "${TARGET_POD}" -- pg_dump -U "${DB_USER}" "${DB_NAME}" | gzip -9 > "${TARGET}"
+elif command -v crictl >/dev/null 2>&1 && crictl ps | grep -q "${CONTAINER_NAME}"; then
+    CONTAINER_ID=$(crictl ps --name "${CONTAINER_NAME}" -q | head -n 1)
+    echo "[INFO] Running pg_dump via containerd (crictl) container: ${CONTAINER_ID}..."
+    crictl exec "${CONTAINER_ID}" pg_dump -U "${DB_USER}" "${DB_NAME}" | gzip -9 > "${TARGET}"
+elif command -v docker >/dev/null 2>&1 && docker ps --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
+    echo "[INFO] Running pg_dump via Docker container: ${CONTAINER_NAME}..."
+    docker exec "${CONTAINER_NAME}" pg_dump -U "${DB_USER}" "${DB_NAME}" | gzip -9 > "${TARGET}"
+else
+    echo "[ERROR] No running PostgreSQL instance found via kubectl, crictl, or docker!" >&2
     exit 1
 fi
-
-# Execute dump and pipe through gzip
-docker exec "${CONTAINER_NAME}" pg_dump -U "${DB_USER}" "${DB_NAME}" | gzip -9 > "${TARGET}"
 chmod 600 "${TARGET}"
 
 # Generate checksum

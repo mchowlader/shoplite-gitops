@@ -1,0 +1,194 @@
+# Default values for shoplite Helm chart.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+global:
+  environment: production
+  namespace: shoplite
+  domain: shoplite.local
+
+# ------------------------------------------------------------------------------
+# 1. Frontend Configuration (React / Vite)
+# ------------------------------------------------------------------------------
+frontend:
+  enabled: true
+  replicaCount: 2
+  image:
+    repository: shoplite/web
+    tag: "1.0.0"
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 80
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 128Mi
+  probes:
+    liveness:
+      path: /
+      port: 80
+      initialDelaySeconds: 15
+      periodSeconds: 10
+    readiness:
+      path: /
+      port: 80
+      initialDelaySeconds: 5
+      periodSeconds: 5
+
+# ------------------------------------------------------------------------------
+# 2. Backend REST API Configuration (FastAPI)
+# ------------------------------------------------------------------------------
+backend:
+  enabled: true
+  replicaCount: 2
+  image:
+    repository: shoplite/catalog-api
+    tag: "1.0.0"
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 8000
+    targetPort: 8000
+  env:
+    PORT: "8000"
+    LOG_LEVEL: "info"
+    METRICS_ENABLED: "true"
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+  probes:
+    liveness:
+      path: /healthz
+      port: 8000
+      initialDelaySeconds: 20
+      periodSeconds: 10
+    readiness:
+      path: /readyz
+      port: 8000
+      initialDelaySeconds: 10
+      periodSeconds: 5
+
+# ------------------------------------------------------------------------------
+# 3. Asynchronous Worker Configuration (Redis Queue Consumer)
+# ------------------------------------------------------------------------------
+worker:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: shoplite/order-worker
+    tag: "1.0.0"
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 300m
+      memory: 256Mi
+
+# ------------------------------------------------------------------------------
+# 4. PostgreSQL Database Configuration (Stateful Storage)
+# ------------------------------------------------------------------------------
+postgres:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: postgres
+    tag: "16-alpine"
+    pullPolicy: IfNotPresent
+  service:
+    port: 5432
+  auth:
+    database: shoplite_db
+    username: shoplite_admin
+    # Security Best Practice: Never commit plaintext passwords to Git.
+    # In production/GitOps, this is injected via external K8s Secret or CI/CD.
+    existingSecret: "shoplite-db-secret"
+    secretKeys:
+      adminPasswordKey: "postgres-password"
+    # Fallback default for offline dev/dry-run only (overridden during deployment)
+    password: ""
+  persistence:
+    enabled: true
+    size: 10Gi
+    accessMode: ReadWriteOnce
+    storageClass: ""
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+
+# ------------------------------------------------------------------------------
+# 5. Redis Queue & Cache Configuration
+# ------------------------------------------------------------------------------
+redis:
+  enabled: true
+  image:
+    repository: redis
+    tag: "7.2-alpine"
+    pullPolicy: IfNotPresent
+  service:
+    port: 6379
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+# ------------------------------------------------------------------------------
+# 6. Ingress Configuration (Routing via ALB / Ingress Controller)
+# ------------------------------------------------------------------------------
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+  hosts:
+    - host: shoplite.local
+      paths:
+        - path: /api
+          pathType: Prefix
+          service: backend
+          port: 8000
+        - path: /
+          pathType: Prefix
+          service: frontend
+          port: 80
+
+# ------------------------------------------------------------------------------
+# 7. Security Context (Non-Root Principle of Least Privilege)
+# ------------------------------------------------------------------------------
+securityContext:
+  runAsUser: 1001
+  runAsGroup: 1001
+  fsGroup: 1001
+  runAsNonRoot: true
+
+# ------------------------------------------------------------------------------
+# 8. Network Policy (Zero-Trust Microsegmentation)
+# ------------------------------------------------------------------------------
+networkPolicy:
+  enabled: true
+
+
