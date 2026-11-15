@@ -1,0 +1,46 @@
+# ==============================================================================
+# ShopLite: Grafana Datasource Auto-Provisioning (Question 6)
+# Pre-configures unified connections to Prometheus (Metrics), Loki (Logs), & Tempo (Traces)
+# Enables cross-telemetry correlations (Trace-to-Logs & Logs-to-Trace)
+# ==============================================================================
+
+apiVersion: 1
+
+datasources:
+  # 1. Prometheus Metrics Datasource (Primary Default)
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://shoplite-prometheus-server.observability.svc.cluster.local:80
+    isDefault: true
+    editable: false
+    jsonData:
+      httpMethod: POST
+      timeInterval: 15s
+
+  # 2. Loki Centralized Logging Datasource (Linked to Tempo via TraceID)
+  - name: Loki
+    type: loki
+    access: proxy
+    url: http://shoplite-loki.observability.svc.cluster.local:3100
+    editable: false
+    jsonData:
+      maxLines: 1000
+      derivedFields:
+        - name: TraceID
+          matcherRegex: '"trace_id":\s*"([a-fA-F0-9]+)"'
+          url: '$${__tags.value}'
+          datasourceUid: tempo
+
+  # 3. Tempo Distributed Tracing Datasource (Linked to Loki for Log Waterfall)
+  - name: Tempo
+    type: tempo
+    access: proxy
+    url: http://shoplite-tempo.observability.svc.cluster.local:3100
+    uid: tempo
+    editable: false
+    jsonData:
+      tracesToLogs:
+        datasourceUid: Loki
+        filterByTraceID: true
+        filterBySpanID: false

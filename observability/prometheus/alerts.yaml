@@ -1,0 +1,40 @@
+# ==============================================================================
+# ShopLite: Prometheus Alerting Rules (Question 6.5)
+# Evaluates critical SLO thresholds, pod restart loops, and queue backlogs
+# ==============================================================================
+
+groups:
+  - name: shoplite-alerts
+    rules:
+      # 1. High HTTP 5xx Error Rate Alert (Threshold: > 5% for 1 minute)
+      - alert: HighErrorRate
+        expr: sum(rate(http_requests_total{status=~"5.."}[2m])) / sum(rate(http_requests_total[2m])) * 100 > 5
+        for: 1m
+        labels:
+          severity: critical
+          app: shoplite
+        annotations:
+          summary: "High HTTP 5xx Error Rate on ShopLite Backend"
+          description: "HTTP 5xx error rate has exceeded 5% for more than 1 minute (Current: {{ $value | printf \"%.2f\" }}%)."
+
+      # 2. Pod CrashLooping Alert (Threshold: > 2 restarts within 5 minutes)
+      - alert: PodCrashLooping
+        expr: rate(kube_pod_container_status_restarts_total{namespace="shoplite"}[5m]) * 60 > 2
+        for: 2m
+        labels:
+          severity: critical
+          app: shoplite
+        annotations:
+          summary: "ShopLite Pod is CrashLooping"
+          description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} is restarting frequently."
+
+      # 3. Redis Order Queue Backlog High (Threshold: > 10 pending orders for 2 minutes)
+      - alert: QueueBacklogHigh
+        expr: order_queue_depth > 10
+        for: 2m
+        labels:
+          severity: warning
+          app: shoplite
+        annotations:
+          summary: "High Redis Order Queue Backlog"
+          description: "Pending order queue has exceeded 10 orders for more than 2 minutes (Current: {{ $value }}). Worker may be degraded."

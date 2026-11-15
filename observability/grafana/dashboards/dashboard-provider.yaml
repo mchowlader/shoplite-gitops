@@ -1,0 +1,17 @@
+# ==============================================================================
+# ShopLite: Grafana Dashboard Auto-Loader Configuration
+# Instructs Grafana to automatically scan and import JSON dashboards on startup
+# ==============================================================================
+
+apiVersion: 1
+
+providers:
+  - name: 'ShopLite Observability'
+    orgId: 1
+    folder: 'ShopLite'
+    type: file
+    disableDeletion: true
+    editable: true
+    options:
+      path: /var/lib/grafana/dashboards
+      foldersFromFilesStructure: true

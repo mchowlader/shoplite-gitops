@@ -1,0 +1,46 @@
+# ==============================================================================
+# Prometheus Configuration (kube-prometheus-stack / prometheus)
+# Purpose: Scrapes application RED metrics, system node metrics, and queue depth
+# Target: ShopLite Microservices in 'shoplite' namespace
+# ==============================================================================
+
+server:
+  global:
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    evaluation_interval: 15s
+
+  retention: "7d"
+
+  persistentVolume:
+    enabled: true
+    size: 10Gi
+    accessModes:
+      - ReadWriteOnce
+
+  extraScrapeConfigs: |
+    - job_name: 'shoplite-backend'
+      metrics_path: '/metrics'
+      scrape_interval: 10s
+      static_configs:
+        - targets: ['shoplite-backend.shoplite.svc.cluster.local:8000']
+          labels:
+            app: 'shoplite'
+            component: 'backend'
+            env: 'production'
+
+    - job_name: 'shoplite-redis'
+      scrape_interval: 15s
+      static_configs:
+        - targets: ['shoplite-redis.shoplite.svc.cluster.local:6379']
+          labels:
+            app: 'shoplite'
+            component: 'redis'
+
+alertmanager:
+  enabled: true
+  persistentVolume:
+    enabled: false
+
+nodeExporter:
+  enabled: true
