@@ -20,3 +20,6 @@ data:
   LOG_LEVEL: {{ .Values.backend.env.LOG_LEVEL | quote }}
   PORT: {{ .Values.backend.env.PORT | quote }}
   METRICS_ENABLED: {{ .Values.backend.env.METRICS_ENABLED | quote }}
+
+  # OpenTelemetry Tracing Endpoint (Tempo OTLP HTTP receiver on port 4318)
+  OTEL_EXPORTER_OTLP_ENDPOINT: "http://shoplite-tempo.observability.svc.cluster.local:4318/v1/traces"
