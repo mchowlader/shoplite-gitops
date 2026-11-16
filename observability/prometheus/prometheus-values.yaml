@@ -18,6 +18,66 @@ server:
     accessModes:
       - ReadWriteOnce
 
+serverFiles:
+  alerting_rules.yml:
+    groups:
+      - name: shoplite-alerts
+        rules:
+          - alert: HighErrorRate
+            expr: (sum(rate(http_requests_total{status=~"5.."}[5m])) / sum(rate(http_requests_total[5m]))) * 100 > 5
+            for: 5m
+            labels:
+              severity: Critical
+              app: shoplite
+            annotations:
+              summary: "High HTTP 5xx Error Rate on ShopLite Backend"
+              description: "HTTP 5xx error rate has exceeded 5% for more than 5 minutes."
+              runbook_url: "https://github.com/mchowlader/shoplite-gitops/blob/main/runbooks/high-error-rate.md"
+
+          - alert: HighLatency
+            expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le)) > 1.0
+            for: 5m
+            labels:
+              severity: Warning
+              app: shoplite
+            annotations:
+              summary: "p95 Latency Exceeded 1 Second"
+              description: "ShopLite backend 95th percentile latency is above 1.0s."
+              runbook_url: "https://github.com/mchowlader/shoplite-gitops/blob/main/runbooks/high-latency.md"
+
+          - alert: QueueBacklog
+            expr: order_queue_depth > 50
+            for: 10m
+            labels:
+              severity: Warning
+              app: shoplite
+            annotations:
+              summary: "Redis Order Queue Backlog High"
+              description: "Pending order queue has exceeded 50 orders for more than 10 minutes."
+              runbook_url: "https://github.com/mchowlader/shoplite-gitops/blob/main/runbooks/queue-backlog.md"
+
+          - alert: PodCrashLooping
+            expr: increase(kube_pod_container_status_restarts_total{namespace="shoplite"}[10m]) > 0
+            for: 10m
+            labels:
+              severity: Critical
+              app: shoplite
+            annotations:
+              summary: "ShopLite Pod is CrashLooping"
+              description: "Pod in namespace shoplite is restarting frequently."
+              runbook_url: "https://github.com/mchowlader/shoplite-gitops/blob/main/runbooks/pod-crash-looping.md"
+
+          - alert: NodeDiskFilling
+            expr: (1 - (node_filesystem_free_bytes{fstype=~"ext4|xfs"} / node_filesystem_size_bytes{fstype=~"ext4|xfs"})) * 100 > 85
+            for: 5m
+            labels:
+              severity: Warning
+              app: shoplite
+            annotations:
+              summary: "Node Root Disk Usage Exceeds 85%"
+              description: "Node filesystem has exceeded 85% capacity."
+              runbook_url: "https://github.com/mchowlader/shoplite-gitops/blob/main/runbooks/node-disk-filling.md"
+
   extraScrapeConfigs: |
     - job_name: 'shoplite-backend'
       metrics_path: '/metrics'
