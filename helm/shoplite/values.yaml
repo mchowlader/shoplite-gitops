@@ -15,7 +15,7 @@ frontend:
   replicaCount: 2
   image:
     repository: shoplite/web
-    tag: "1.0.0"
+    tag: "sha-d6597cf2da412737ea859d226434ab2e460ddc01"
     pullPolicy: IfNotPresent
   service:
     type: ClusterIP
@@ -48,7 +48,7 @@ backend:
   replicaCount: 2
   image:
     repository: shoplite/catalog-api
-    tag: "1.0.0"
+    tag: "sha-d6597cf2da412737ea859d226434ab2e460ddc01"
     pullPolicy: IfNotPresent
   service:
     type: ClusterIP
@@ -91,7 +91,7 @@ worker:
   replicaCount: 1
   image:
     repository: shoplite/order-worker
-    tag: "1.0.0"
+    tag: "sha-d6597cf2da412737ea859d226434ab2e460ddc01"
     pullPolicy: IfNotPresent
   resources:
     requests:
