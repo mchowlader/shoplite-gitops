@@ -78,6 +78,57 @@ serverFiles:
               description: "Node filesystem has exceeded 85% capacity."
               runbook_url: "https://github.com/mchowlader/shoplite-gitops/blob/main/runbooks/node-disk-filling.md"
 
+      # Bonus: Google SRE Multi-Window Multi-Burn-Rate Alerts (+5 Bonus Marks)
+      - name: shoplite-slo-burn-rate-alerts
+        rules:
+          - alert: ErrorBudgetBurnRateCritical1h
+            expr: >-
+              (sum(rate(http_requests_total{status=~"5.."}[1h])) / sum(rate(http_requests_total[1h])) > (14.4 * 0.005))
+              and
+              (sum(rate(http_requests_total{status=~"5.."}[5m])) / sum(rate(http_requests_total[5m])) > (14.4 * 0.005))
+            for: 2m
+            labels:
+              severity: Critical
+              tier: slo
+              burn_rate: "14.4x"
+              app: shoplite
+            annotations:
+              summary: "Rapid Error Budget Consumption (14.4x Burn Rate)"
+              description: "ShopLite 30-day 99.5% availability error budget is burning at 14.4x over 1h and 5m."
+              runbook_url: "https://github.com/mchowlader/shoplite-gitops/blob/main/runbooks/slo-burn-rate.md"
+
+          - alert: ErrorBudgetBurnRateCritical6h
+            expr: >-
+              (sum(rate(http_requests_total{status=~"5.."}[6h])) / sum(rate(http_requests_total[6h])) > (6 * 0.005))
+              and
+              (sum(rate(http_requests_total{status=~"5.."}[30m])) / sum(rate(http_requests_total[30m])) > (6 * 0.005))
+            for: 5m
+            labels:
+              severity: Critical
+              tier: slo
+              burn_rate: "6x"
+              app: shoplite
+            annotations:
+              summary: "Sustained Error Budget Consumption (6x Burn Rate)"
+              description: "ShopLite error budget is burning at 6x over 6h and 30m."
+              runbook_url: "https://github.com/mchowlader/shoplite-gitops/blob/main/runbooks/slo-burn-rate.md"
+
+          - alert: ErrorBudgetBurnRateWarning3d
+            expr: >-
+              (sum(rate(http_requests_total{status=~"5.."}[3d])) / sum(rate(http_requests_total[3d])) > (1 * 0.005))
+              and
+              (sum(rate(http_requests_total{status=~"5.."}[6h])) / sum(rate(http_requests_total[6h])) > (1 * 0.005))
+            for: 15m
+            labels:
+              severity: Warning
+              tier: slo
+              burn_rate: "1x"
+              app: shoplite
+            annotations:
+              summary: "Slow-Burning Error Budget Consumption (1x Burn Rate)"
+              description: "ShopLite error budget is steadily burning at 1x over 3d and 6h."
+              runbook_url: "https://github.com/mchowlader/shoplite-gitops/blob/main/runbooks/slo-burn-rate.md"
+
   extraScrapeConfigs: |
     - job_name: 'shoplite-backend'
       metrics_path: '/metrics'

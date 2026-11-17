@@ -1,0 +1,79 @@
+{{- if and .Values.backend.enabled .Values.argoRollouts .Values.argoRollouts.enabled }}
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: {{ include "shoplite.fullname" . }}-backend
+  labels:
+    {{- include "shoplite.labels" . | nindent 4 }}
+    app.kubernetes.io/component: backend
+spec:
+  {{- if not .Values.backend.autoscaling.enabled }}
+  replicas: {{ .Values.backend.replicaCount }}
+  {{- end }}
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      {{- include "shoplite.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: backend
+  strategy:
+    canary:
+      analysis:
+        templates:
+          - templateName: {{ include "shoplite.fullname" . }}-backend-analysis
+        args:
+          - name: service-name
+            value: {{ include "shoplite.fullname" . }}-backend-canary
+      canaryService: {{ include "shoplite.fullname" . }}-backend-canary
+      stableService: {{ include "shoplite.fullname" . }}-backend
+      trafficRouting:
+        nginx:
+          stableIngress: {{ include "shoplite.fullname" . }}-ingress
+      steps:
+        - setWeight: 10
+        - pause: { duration: 1m }
+        - setWeight: 30
+        - pause: { duration: 2m }
+        - setWeight: 60
+        - pause: { duration: 2m }
+  template:
+    metadata:
+      labels:
+        {{- include "shoplite.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: backend
+    spec:
+      securityContext:
+        runAsUser: {{ .Values.securityContext.runAsUser }}
+        runAsGroup: {{ .Values.securityContext.runAsGroup }}
+        runAsNonRoot: {{ .Values.securityContext.runAsNonRoot }}
+      containers:
+        - name: backend
+          image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
+          imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.backend.service.port }}
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: {{ include "shoplite.fullname" . }}-config
+          env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.postgres.auth.existingSecret | default (printf "%s-db-secret" (include "shoplite.fullname" .)) }}
+                  key: {{ .Values.postgres.auth.secretKeys.adminPasswordKey }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.backend.probes.liveness.path }}
+              port: {{ .Values.backend.probes.liveness.port }}
+            initialDelaySeconds: {{ .Values.backend.probes.liveness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.backend.probes.liveness.periodSeconds }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.backend.probes.readiness.path }}
+              port: {{ .Values.backend.probes.readiness.port }}
+            initialDelaySeconds: {{ .Values.backend.probes.readiness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.backend.probes.readiness.periodSeconds }}
+          resources:
+            {{- toYaml .Values.backend.resources | nindent 12 }}
+{{- end }}

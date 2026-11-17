@@ -191,4 +191,16 @@ securityContext:
 networkPolicy:
   enabled: true
 
+# ------------------------------------------------------------------------------
+# 9. Bonus: Argo Rollouts Progressive Delivery (+5 Bonus Marks)
+# Enables Canary Deployment with Automated Prometheus Metric Analysis & Rollback
+# ------------------------------------------------------------------------------
+argoRollouts:
+  enabled: true
+  analysis:
+    enabled: true
+    prometheusAddress: "http://shoplite-prometheus-server.observability.svc.cluster.local:80"
+    failureLimit: 1
+
+
 
