@@ -7,6 +7,9 @@ global:
   namespace: shoplite
   domain: shoplite.local
 
+imagePullSecrets:
+  - name: ecr-secret
+
 # ------------------------------------------------------------------------------
 # 1. Frontend Configuration (React / Vite)
 # ------------------------------------------------------------------------------
@@ -14,9 +17,9 @@ frontend:
   enabled: true
   replicaCount: 2
   image:
-    repository: shoplite/web
-    tag: "sha-d6597cf2da412737ea859d226434ab2e460ddc01"
-    pullPolicy: IfNotPresent
+    repository: 779846822536.dkr.ecr.ap-southeast-1.amazonaws.com/shoplite/web
+    tag: "latest"
+    pullPolicy: Always
   service:
     type: ClusterIP
     port: 80
@@ -47,9 +50,9 @@ backend:
   enabled: true
   replicaCount: 2
   image:
-    repository: shoplite/catalog-api
-    tag: "sha-d6597cf2da412737ea859d226434ab2e460ddc01"
-    pullPolicy: IfNotPresent
+    repository: 779846822536.dkr.ecr.ap-southeast-1.amazonaws.com/shoplite/catalog-api
+    tag: "latest"
+    pullPolicy: Always
   service:
     type: ClusterIP
     port: 8000
@@ -90,9 +93,9 @@ worker:
   enabled: true
   replicaCount: 1
   image:
-    repository: shoplite/order-worker
-    tag: "sha-d6597cf2da412737ea859d226434ab2e460ddc01"
-    pullPolicy: IfNotPresent
+    repository: 779846822536.dkr.ecr.ap-southeast-1.amazonaws.com/shoplite/order-worker
+    tag: "latest"
+    pullPolicy: Always
   resources:
     requests:
       cpu: 50m
