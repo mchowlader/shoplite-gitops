@@ -20,6 +20,11 @@ frontend:
     repository: 779846822536.dkr.ecr.ap-southeast-1.amazonaws.com/shoplite/web
     tag: "latest"
     pullPolicy: Always
+  securityContext:
+    runAsUser: 101
+    runAsGroup: 101
+    fsGroup: 101
+    runAsNonRoot: true
   service:
     type: ClusterIP
     port: 80

@@ -23,11 +23,19 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       securityContext:
+        {{- if .Values.frontend.securityContext }}
+        {{- toYaml .Values.frontend.securityContext | nindent 8 }}
+        {{- else }}
         runAsUser: {{ .Values.securityContext.runAsUser }}
         runAsGroup: {{ .Values.securityContext.runAsGroup }}
         runAsNonRoot: {{ .Values.securityContext.runAsNonRoot }}
+        {{- end }}
       containers:
         - name: frontend
+          securityContext:
+            capabilities:
+              add:
+                - NET_BIND_SERVICE
           image: "{{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag }}"
           imagePullPolicy: {{ .Values.frontend.image.pullPolicy }}
           ports:
