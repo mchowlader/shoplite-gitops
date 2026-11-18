@@ -18,8 +18,8 @@ frontend:
   replicaCount: 2
   image:
     repository: 779846822536.dkr.ecr.ap-southeast-1.amazonaws.com/shoplite/web
-    tag: "latest"
-    pullPolicy: Always
+    tag: "v1.0.0"
+    pullPolicy: IfNotPresent
   securityContext:
     runAsUser: 101
     runAsGroup: 101
@@ -56,8 +56,8 @@ backend:
   replicaCount: 2
   image:
     repository: 779846822536.dkr.ecr.ap-southeast-1.amazonaws.com/shoplite/catalog-api
-    tag: "latest"
-    pullPolicy: Always
+    tag: "v1.0.0"
+    pullPolicy: IfNotPresent
   service:
     type: ClusterIP
     port: 8000
@@ -99,8 +99,8 @@ worker:
   replicaCount: 1
   image:
     repository: 779846822536.dkr.ecr.ap-southeast-1.amazonaws.com/shoplite/order-worker
-    tag: "latest"
-    pullPolicy: Always
+    tag: "v1.0.0"
+    pullPolicy: IfNotPresent
   resources:
     requests:
       cpu: 50m
