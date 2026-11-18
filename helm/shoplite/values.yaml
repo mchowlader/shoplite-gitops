@@ -183,6 +183,16 @@ ingress:
           pathType: Prefix
           service: frontend
           port: 80
+    - host: ""
+      paths:
+        - path: /api
+          pathType: Prefix
+          service: backend
+          port: 8000
+        - path: /
+          pathType: Prefix
+          service: frontend
+          port: 80
 
 # ------------------------------------------------------------------------------
 # 7. Security Context (Non-Root Principle of Least Privilege)
