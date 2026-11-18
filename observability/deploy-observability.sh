@@ -63,11 +63,7 @@ helm upgrade --install shoplite-prometheus prometheus-community/prometheus \
     --namespace "${NAMESPACE}" \
     --values "${SCRIPT_DIR}/prometheus/prometheus-values.yaml" \
     --wait --timeout 300s
-log_success "Prometheus deployed successfully."
-
-log_info "Applying Prometheus Alerting Rules..."
-kubectl apply -f "${SCRIPT_DIR}/prometheus/alerts.yaml" -n "${NAMESPACE}"
-log_success "Alerting rules applied to '${NAMESPACE}'."
+log_success "Prometheus deployed successfully with built-in alerting rules."
 
 # ------------------------------------------------------------------------------
 # Step 4: Deploy Grafana Loki (Log Aggregation Engine)
