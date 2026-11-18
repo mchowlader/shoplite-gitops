@@ -4,6 +4,27 @@
 # Retention: 7 days (168 hours) matching Prometheus metrics retention
 # ==============================================================================
 
+deploymentMode: SingleBinary
+
+backend:
+  replicas: 0
+read:
+  replicas: 0
+write:
+  replicas: 0
+ingester:
+  replicas: 0
+querier:
+  replicas: 0
+queryFrontend:
+  replicas: 0
+queryScheduler:
+  replicas: 0
+distributor:
+  replicas: 0
+indexGateway:
+  replicas: 0
+
 loki:
   auth_enabled: false
 
