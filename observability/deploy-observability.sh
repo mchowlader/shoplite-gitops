@@ -125,6 +125,7 @@ helm upgrade --install shoplite-grafana grafana/grafana \
     --namespace "${NAMESPACE}" \
     --set adminPassword="admin" \
     --set persistence.enabled=false \
+    --set "env.GF_SERVER_SERVE_FROM_SUB_PATH=true" \
     --set "extraConfigMapMounts[0].name=datasources" \
     --set "extraConfigMapMounts[0].mountPath=/etc/grafana/provisioning/datasources/datasources.yaml" \
     --set "extraConfigMapMounts[0].subPath=datasources.yaml" \
