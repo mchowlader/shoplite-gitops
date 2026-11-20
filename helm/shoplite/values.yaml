@@ -124,15 +124,14 @@ postgres:
   auth:
     database: shoplite_db
     username: shoplite_admin
-    # Security Best Practice: Never commit plaintext passwords to Git.
-    # In production/GitOps, this is injected via external K8s Secret or CI/CD.
-    existingSecret: "shoplite-db-secret"
+    # In dry-run / default Helm deployment, generate the secret automatically
+    existingSecret: ""
     secretKeys:
       adminPasswordKey: "postgres-password"
-    # Fallback default for offline dev/dry-run only (overridden during deployment)
-    password: ""
+    password: "shoplite_dev_password"
   persistence:
-    enabled: true
+    # Set to false for self-managed dry-run clusters without dynamic EBS CSI storage class
+    enabled: false
     size: 10Gi
     accessMode: ReadWriteOnce
     storageClass: ""
