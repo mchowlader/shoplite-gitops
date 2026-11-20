@@ -19,9 +19,12 @@ echo -e "${BLUE}================================================================
 echo -e "${BLUE}  ShopLite Ansible Automation Suite — Mode: ${MODE}                ${NC}"
 echo -e "${BLUE}===================================================================${NC}"
 
-# Check Ansible installation
+# Check Ansible installation; auto-install if missing
 if ! command -v ansible-playbook &>/dev/null; then
-    echo -e "${YELLOW}[WARN] ansible-playbook not found in PATH. Ensure python3 -m pip install ansible is installed.${NC}"
+    echo -e "${YELLOW}[INFO] ansible-playbook not found. Installing Ansible automatically...${NC}"
+    sudo apt-get update -y
+    sudo apt-get install -y ansible
+    echo -e "${GREEN}[SUCCESS] Ansible installed successfully!${NC}"
 fi
 
 case "${MODE}" in
