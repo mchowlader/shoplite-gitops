@@ -46,16 +46,6 @@ kubectl create namespace "${NAMESPACE}" --dry-run=client -o yaml | kubectl apply
 log_success "Namespace '${NAMESPACE}' ready."
 
 # ------------------------------------------------------------------------------
-# Step 1.5: Ensure Default Dynamic StorageClass exists for Persistent Workloads
-# ------------------------------------------------------------------------------
-if ! kubectl get storageclass local-path &>/dev/null; then
-    log_info "Ensuring Cluster Default Dynamic StorageClass (local-path) exists..."
-    kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/v0.0.28/deploy/local-path-storage.yaml
-    kubectl patch storageclass local-path -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
-    log_success "Default Dynamic StorageClass 'local-path' configured successfully."
-fi
-
-# ------------------------------------------------------------------------------
 # Step 2: Add and Update Required Helm Repositories
 # ------------------------------------------------------------------------------
 log_info "Adding official Helm chart repositories..."
