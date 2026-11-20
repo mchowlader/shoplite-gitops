@@ -63,4 +63,7 @@ loki:
 singleBinary:
   replicas: 1
   persistence:
-    enabled: false
+    enabled: true
+    size: 10Gi
+    accessModes:
+      - ReadWriteOnce

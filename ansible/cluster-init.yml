@@ -87,6 +87,22 @@
       register: argo_deploy
       changed_when: "'created' in argo_deploy.stdout or 'configured' in argo_deploy.stdout"
 
+    - name: Deploy Local Path Dynamic Storage Provisioner
+      ansible.builtin.command: kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/v0.0.28/deploy/local-path-storage.yaml
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+      register: storage_deploy
+      changed_when: "'created' in storage_deploy.stdout or 'configured' in storage_deploy.stdout"
+
+    - name: Set local-path as Cluster Default StorageClass
+      ansible.builtin.command: >
+        kubectl patch storageclass local-path
+        -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+      register: storage_patch
+      changed_when: "'patched' in storage_patch.stdout"
+
     - name: Generate fresh kubeadm join command for worker nodes
       ansible.builtin.command: kubeadm token create --print-join-command
       register: kubeadm_join_command

@@ -13,7 +13,10 @@ server:
   retention: "7d"
 
   persistentVolume:
-    enabled: false
+    enabled: true
+    size: 10Gi
+    accessModes:
+      - ReadWriteOnce
 
 serverFiles:
   alerting_rules.yml:
@@ -148,7 +151,10 @@ serverFiles:
 alertmanager:
   enabled: true
   persistentVolume:
-    enabled: false
+    enabled: true
+    size: 10Gi
+    accessModes:
+      - ReadWriteOnce
 
 nodeExporter:
   enabled: true
