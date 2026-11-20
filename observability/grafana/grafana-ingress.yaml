@@ -9,6 +9,26 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
+    - host: shoplite-alb-dev-1985139510.ap-southeast-1.elb.amazonaws.com
+      http:
+        paths:
+          - path: /grafana
+            pathType: Prefix
+            backend:
+              service:
+                name: shoplite-grafana
+                port:
+                  number: 80
+    - host: shoplite.local
+      http:
+        paths:
+          - path: /grafana
+            pathType: Prefix
+            backend:
+              service:
+                name: shoplite-grafana
+                port:
+                  number: 80
     - http:
         paths:
           - path: /grafana

@@ -171,12 +171,18 @@ ingress:
     kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
   hosts:
+    - host: shoplite-alb-dev-1985139510.ap-southeast-1.elb.amazonaws.com
+      paths:
+        - path: /api
+          pathType: Prefix
+          service: backend
+          port: 8000
+        - path: /
+          pathType: Prefix
+          service: frontend
+          port: 80
     - host: shoplite.local
       paths:
-        - path: /grafana
-          pathType: Prefix
-          service: grafana
-          port: 80
         - path: /api
           pathType: Prefix
           service: backend
@@ -187,10 +193,6 @@ ingress:
           port: 80
     - host: ""
       paths:
-        - path: /grafana
-          pathType: Prefix
-          service: grafana
-          port: 80
         - path: /api
           pathType: Prefix
           service: backend
