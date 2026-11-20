@@ -81,7 +81,7 @@
       changed_when: "'patched' in ingress_patch.stdout"
 
     - name: Deploy Argo Rollouts Progressive Delivery Controller
-      ansible.builtin.command: kubectl apply -n argo-rollouts -f https://github.com/argoproj/argo-rollouts/releases/latest/download/install.yaml
+      ansible.builtin.command: kubectl apply --server-side -n argo-rollouts -f https://github.com/argoproj/argo-rollouts/releases/latest/download/install.yaml
       environment:
         KUBECONFIG: /etc/kubernetes/admin.conf
       register: argo_deploy
