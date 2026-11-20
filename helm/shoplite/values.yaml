@@ -130,11 +130,10 @@ postgres:
       adminPasswordKey: "postgres-password"
     password: "shoplite_dev_password"
   persistence:
-    # Set to false for self-managed dry-run clusters without dynamic EBS CSI storage class
-    enabled: false
+    enabled: true
     size: 10Gi
     accessMode: ReadWriteOnce
-    storageClass: ""
+    storageClass: "local-storage"
   resources:
     requests:
       cpu: 100m

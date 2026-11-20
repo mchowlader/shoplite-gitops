@@ -12,7 +12,5 @@ spec:
   resources:
     requests:
       storage: {{ .Values.postgres.persistence.size | quote }}
-  {{- if .Values.postgres.persistence.storageClass }}
-  storageClassName: {{ .Values.postgres.persistence.storageClass | quote }}
-  {{- end }}
+  storageClassName: {{ .Values.postgres.persistence.storageClass | default "local-storage" | quote }}
 {{- end }}
