@@ -123,25 +123,7 @@ log_success "Grafana ConfigMaps created."
 log_info "Deploying Grafana with auto-mounted Datasources & Dashboards..."
 helm upgrade --install shoplite-grafana grafana/grafana \
     --namespace "${NAMESPACE}" \
-    --set adminPassword="admin" \
-    --set persistence.enabled=false \
-    --set "env.GF_SERVER_ROOT_URL=%(protocol)s://%(domain)s/grafana/" \
-    --set "env.GF_SERVER_SERVE_FROM_SUB_PATH=true" \
-    --set "extraConfigMapMounts[0].name=datasources" \
-    --set "extraConfigMapMounts[0].mountPath=/etc/grafana/provisioning/datasources/datasources.yaml" \
-    --set "extraConfigMapMounts[0].subPath=datasources.yaml" \
-    --set "extraConfigMapMounts[0].configMap=grafana-datasources" \
-    --set "extraConfigMapMounts[0].readOnly=true" \
-    --set "extraConfigMapMounts[1].name=dashboard-provider" \
-    --set "extraConfigMapMounts[1].mountPath=/etc/grafana/provisioning/dashboards/dashboard-provider.yaml" \
-    --set "extraConfigMapMounts[1].subPath=dashboard-provider.yaml" \
-    --set "extraConfigMapMounts[1].configMap=grafana-dashboard-provider" \
-    --set "extraConfigMapMounts[1].readOnly=true" \
-    --set "extraConfigMapMounts[2].name=shoplite-dashboard" \
-    --set "extraConfigMapMounts[2].mountPath=/var/lib/grafana/dashboards/shoplite-overview.json" \
-    --set "extraConfigMapMounts[2].subPath=shoplite-overview.json" \
-    --set "extraConfigMapMounts[2].configMap=grafana-shoplite-dashboard" \
-    --set "extraConfigMapMounts[2].readOnly=true" \
+    --values "${SCRIPT_DIR}/grafana/grafana-values.yaml" \
     --wait --timeout 300s
 log_success "Grafana deployed successfully."
 
