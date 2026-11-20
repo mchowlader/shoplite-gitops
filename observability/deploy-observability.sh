@@ -128,11 +128,12 @@ helm upgrade --install shoplite-grafana grafana/grafana \
 log_success "Grafana deployed successfully."
 
 # ------------------------------------------------------------------------------
-# Step 8.5: Expose Grafana securely via Ingress & ALB (Zero Public Port Exposure)
+# Step 8.5: Clean up any isolated Ingress in observability namespace
+# Routing is unified under main ShopLite Ingress via ExternalName bridge
 # ------------------------------------------------------------------------------
-log_info "Configuring Ingress for Grafana on /grafana via ALB..."
-kubectl apply -f "${SCRIPT_DIR}/grafana/grafana-ingress.yaml"
-log_success "Grafana Ingress configured successfully."
+log_info "Ensuring clean Ingress state (no cross-namespace hostless collisions)..."
+kubectl delete ingress shoplite-grafana-ingress -n "${NAMESPACE}" --ignore-not-found=true
+log_success "Observability Ingress state verified."
 
 # ------------------------------------------------------------------------------
 # Step 9: Summary & Verification
