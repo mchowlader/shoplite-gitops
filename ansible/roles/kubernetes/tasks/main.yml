@@ -47,3 +47,10 @@
     enabled: true
     daemon_reload: true
 
+- name: Install Helm 3 package manager on control-plane
+  ansible.builtin.shell: |
+    curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+  args:
+    creates: /usr/local/bin/helm
+  when: "'control_plane' in group_names"
+
