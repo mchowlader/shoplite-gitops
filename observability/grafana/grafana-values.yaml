@@ -20,7 +20,7 @@ extraConfigMapMounts:
     configMap: grafana-dashboard-provider
     readOnly: true
   - name: shoplite-dashboard
-    mountPath: /var/lib/grafana/dashboards/shoplite-overview.json
-    subPath: shoplite-overview.json
+    mountPath: /var/lib/grafana/dashboards/shoplite-golden-signals.json
+    subPath: shoplite-golden-signals.json
     configMap: grafana-shoplite-dashboard
     readOnly: true

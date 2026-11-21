@@ -110,9 +110,10 @@ kubectl create configmap grafana-dashboard-provider \
     --namespace "${NAMESPACE}" \
     --dry-run=client -o yaml | kubectl apply -f -
 
-log_info "Provisioning ShopLite RED Metrics Dashboard..."
+log_info "Provisioning ShopLite Golden Signals Dashboard..."
 kubectl create configmap grafana-shoplite-dashboard \
-    --from-file=shoplite-overview.json="${SCRIPT_DIR}/grafana/dashboards/shoplite-overview.json" \
+    --from-file=shoplite-golden-signals.json="${SCRIPT_DIR}/grafana/dashboards/shoplite-golden-signals.json" \
+    --from-file=shoplite-overview.json="${SCRIPT_DIR}/grafana/dashboards/shoplite-golden-signals.json" \
     --namespace "${NAMESPACE}" \
     --dry-run=client -o yaml | kubectl apply -f -
 log_success "Grafana ConfigMaps created."

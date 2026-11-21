@@ -204,21 +204,25 @@
       "type": "timeseries",
       "targets": [
         {
+          "exemplar": true,
           "expr": "histogram_quantile(0.50, sum(rate(http_request_duration_seconds_bucket[1m])) by (le))",
           "legendFormat": "p50 (Median)",
           "refId": "A"
         },
         {
+          "exemplar": true,
           "expr": "histogram_quantile(0.90, sum(rate(http_request_duration_seconds_bucket[1m])) by (le))",
           "legendFormat": "p90",
           "refId": "B"
         },
         {
+          "exemplar": true,
           "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[1m])) by (le))",
           "legendFormat": "p95",
           "refId": "C"
         },
         {
+          "exemplar": true,
           "expr": "histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[1m])) by (le))",
           "legendFormat": "p99",
           "refId": "D"
@@ -307,7 +311,7 @@
     "refresh_intervals": ["5s", "10s", "30s", "1m"]
   },
   "timezone": "browser",
-  "title": "ShopLite - Production Observability Dashboard",
-  "uid": "shoplite-production-overview",
+  "title": "ShopLite - Golden Signals",
+  "uid": "shoplite-golden-signals",
   "version": 1
 }

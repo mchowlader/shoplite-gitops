@@ -7,7 +7,7 @@
 apiVersion: 1
 
 datasources:
-  # 1. Prometheus Metrics Datasource (Primary Default)
+  # 1. Prometheus Metrics Datasource (Primary Default with Exemplar Link to Tempo)
   - name: Prometheus
     type: prometheus
     access: proxy
@@ -17,6 +17,9 @@ datasources:
     jsonData:
       httpMethod: POST
       timeInterval: 15s
+      exemplarTraceIdDestinations:
+        - name: TraceID
+          datasourceUid: tempo
 
   # 2. Loki Centralized Logging Datasource (Linked to Tempo via TraceID)
   - name: Loki
