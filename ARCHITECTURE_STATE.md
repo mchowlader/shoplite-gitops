@@ -83,7 +83,7 @@ To ensure full compliance with strict assessment rubrics while preserving operat
    - `envs/prod/values.yaml`: High-availability multi-replica footprint (`v1.0.0`, CPU: 200m–1000m, Memory: 256Mi–1Gi, HPA enabled).
 
 4. **Section 2.1 Repository Alignment:**
-   - `shoplite-app` houses the full application codebase, CI pipeline, and mirrored assessment deliverables (`ansible/`, `helm/`, `observability/`, `monitoring/`, `runbooks/`, `docs/`) to satisfy single-repository assessment evaluators.
+   - `shoplite-app` houses the full application codebase, CI pipeline, and mirrored assessment deliverables (`ansible/`, `helm/`, `observability/`, `runbooks/`, `docs/`) to satisfy single-repository assessment evaluators.
    - `shoplite-gitops` serves as the live GitOps cluster source managing declarations for Helm and cluster configurations.
 
 ---
