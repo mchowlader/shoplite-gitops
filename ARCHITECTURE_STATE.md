@@ -133,7 +133,7 @@ ssh -o StrictHostKeyChecking=no -i ~/.ssh/shoplite-key.pem ubuntu@$CP_PUBLIC_IP 
 
 ### Step 3: Bootstrap Kubernetes Cluster via Ansible (Terminal 1)
 ```bash
-cd ~/code/shoplite-gitops/ansible
+cd ~/code/shoplite-app/ansible
 git pull origin main
 ./run-ansible.sh
 ```
