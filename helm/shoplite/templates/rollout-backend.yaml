@@ -1,4 +1,4 @@
-{{- if and .Values.backend.enabled .Values.argoRollouts .Values.argoRollouts.enabled }}
+{{- if and .Values.backend.enabled (or (and .Values.argoRollouts .Values.argoRollouts.enabled) (and .Values.canary .Values.canary.enabled)) }}
 apiVersion: argoproj.io/v1alpha1
 kind: Rollout
 metadata:

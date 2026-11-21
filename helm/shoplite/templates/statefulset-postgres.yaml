@@ -1,15 +1,14 @@
 {{- if .Values.postgres.enabled }}
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: {{ include "shoplite.fullname" . }}-postgres
   labels:
     {{- include "shoplite.labels" . | nindent 4 }}
     app.kubernetes.io/component: postgres
 spec:
+  serviceName: {{ include "shoplite.fullname" . }}-postgres
   replicas: {{ .Values.postgres.replicaCount }}
-  strategy:
-    type: Recreate
   selector:
     matchLabels:
       {{- include "shoplite.selectorLabels" . | nindent 6 }}
@@ -47,12 +46,26 @@ spec:
           volumeMounts:
             - name: postgres-storage
               mountPath: /var/lib/postgresql/data
+      {{- if not .Values.postgres.persistence.enabled }}
       volumes:
         - name: postgres-storage
-          {{- if .Values.postgres.persistence.enabled }}
-          persistentVolumeClaim:
-            claimName: {{ include "shoplite.fullname" . }}-postgres-pvc
-          {{- else }}
           emptyDir: {}
-          {{- end }}
+      {{- end }}
+  {{- if .Values.postgres.persistence.enabled }}
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-storage
+        labels:
+          {{- include "shoplite.labels" . | nindent 10 }}
+          app.kubernetes.io/component: postgres
+      spec:
+        accessModes:
+          - {{ .Values.postgres.persistence.accessMode | quote }}
+        {{- if .Values.postgres.persistence.storageClass }}
+        storageClassName: {{ .Values.postgres.persistence.storageClass | quote }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.postgres.persistence.size | quote }}
+  {{- end }}
 {{- end }}

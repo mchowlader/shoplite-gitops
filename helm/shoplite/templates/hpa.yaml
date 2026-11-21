@@ -8,8 +8,8 @@ metadata:
     app.kubernetes.io/component: backend
 spec:
   scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
+    apiVersion: {{ if or (and .Values.argoRollouts .Values.argoRollouts.enabled) (and .Values.canary .Values.canary.enabled) }}argoproj.io/v1alpha1{{ else }}apps/v1{{ end }}
+    kind: {{ if or (and .Values.argoRollouts .Values.argoRollouts.enabled) (and .Values.canary .Values.canary.enabled) }}Rollout{{ else }}Deployment{{ end }}
     name: {{ include "shoplite.fullname" . }}-backend
   minReplicas: {{ .Values.backend.autoscaling.minReplicas }}
   maxReplicas: {{ .Values.backend.autoscaling.maxReplicas }}

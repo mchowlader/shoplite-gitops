@@ -1,4 +1,4 @@
-{{- if and .Values.backend.enabled (not (and .Values.argoRollouts .Values.argoRollouts.enabled)) }}
+{{- if and .Values.backend.enabled (not (and .Values.argoRollouts .Values.argoRollouts.enabled)) (not (and .Values.canary .Values.canary.enabled)) }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:

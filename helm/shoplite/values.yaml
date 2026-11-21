@@ -79,6 +79,9 @@ backend:
     maxReplicas: 10
     targetCPUUtilizationPercentage: 70
     targetMemoryUtilizationPercentage: 80
+  pdb:
+    enabled: true
+    minAvailable: 1
   probes:
     liveness:
       path: /healthz
@@ -133,7 +136,7 @@ postgres:
     enabled: true
     size: 10Gi
     accessMode: ReadWriteOnce
-    storageClass: "local-storage"
+    storageClass: "local-path"
   resources:
     requests:
       cpu: 100m
@@ -221,6 +224,9 @@ networkPolicy:
 # 9. Bonus: Argo Rollouts Progressive Delivery (+5 Bonus Marks)
 # Enables Canary Deployment with Automated Prometheus Metric Analysis & Rollback
 # ------------------------------------------------------------------------------
+canary:
+  enabled: true
+
 argoRollouts:
   enabled: true
   analysis:
