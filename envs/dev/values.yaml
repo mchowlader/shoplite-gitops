@@ -1,15 +1,66 @@
 # ==============================================================================
-# ShopLite: Development Environment Helm Values
+# ShopLite: Development Environment Helm Overrides (Question 5)
+# Optimized for cost efficiency and rapid feedback
 # ==============================================================================
 environment: dev
 
-replicaCount:
-  web: 2
-  catalogApi: 2
-  orderWorker: 1
+backend:
+  replicaCount: 1
+  image:
+    tag: "v1.0.0-dev"
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+frontend:
+  replicaCount: 1
+  image:
+    tag: "v1.0.0-dev"
+  resources:
+    requests:
+      cpu: 25m
+      memory: 32Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi
+
+worker:
+  replicaCount: 1
+  image:
+    tag: "v1.0.0-dev"
+  resources:
+    requests:
+      cpu: 25m
+      memory: 32Mi
+    limits:
+      cpu: 150m
+      memory: 128Mi
+
+postgres:
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 250m
+      memory: 512Mi
 
 ingress:
   enabled: true
   className: nginx
-  host: dev.shoplite.local
-
+  hosts:
+    - host: dev.shoplite.local
+      paths:
+        - path: /api
+          pathType: Prefix
+          service: backend
+          port: 8000
+        - path: /
+          pathType: Prefix
+          service: frontend
+          port: 80

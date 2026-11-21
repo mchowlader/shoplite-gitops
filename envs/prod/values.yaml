@@ -1,15 +1,70 @@
 # ==============================================================================
-# ShopLite: Production Environment Helm Values
+# ShopLite: Production Environment Helm Overrides (Question 5)
+# Optimized for high availability, zero downtime, and robust performance
 # ==============================================================================
 environment: prod
 
-replicaCount:
-  web: 2
-  catalogApi: 3
-  orderWorker: 2
+backend:
+  replicaCount: 3
+  image:
+    tag: "v1.0.0"
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+
+frontend:
+  replicaCount: 3
+  image:
+    tag: "v1.0.0"
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+
+worker:
+  replicaCount: 2
+  image:
+    tag: "v1.0.0"
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+postgres:
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 2Gi
 
 ingress:
   enabled: true
   className: nginx
-  host: shoplite.prod.local
-
+  hosts:
+    - host: shoplite.prod.local
+      paths:
+        - path: /api
+          pathType: Prefix
+          service: backend
+          port: 8000
+        - path: /
+          pathType: Prefix
+          service: frontend
+          port: 80
