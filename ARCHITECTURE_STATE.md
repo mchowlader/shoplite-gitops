@@ -111,8 +111,10 @@ To ensure full compliance with strict assessment rubrics while preserving operat
 
 When initiating a fresh lab session on a Poridhi AWS VM, execute the following deterministic steps:
 
-### Step 1: Provision Infrastructure via Terraform (Terminal 1)
+### Step 1: Clone Repository & Provision Infrastructure via Terraform (Terminal 1)
 ```bash
+mkdir -p ~/code && cd ~/code
+git clone https://github.com/mchowlader/shoplite-app.git
 cd ~/code/shoplite-app/terraform
 git pull origin main
 terraform init
