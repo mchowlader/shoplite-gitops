@@ -44,21 +44,36 @@ flowchart LR
 
 ---
 
-## 🔑 Phase 0: SSH Key Pair তৈরি করা (Fresh Lab Session-এ একবার)
+## 🔑 Phase 0: AWS CLI কনফিগার ও SSH Key Pair তৈরি ➔ 🖥️ `[TERMINAL 1: Poridhi Web Terminal]`
 
 ### 🖥️ টার্মিনাল: **Terminal 1 (Poridhi Web Terminal)**
-Poridhi ল্যাব সেশনে ঢোকার সাথে সাথে SSH Key Pair টি তৈরি করে নিন:
+Poridhi ল্যাব সেশনে ঢোকার সাথে সাথে প্রথমে AWS CLI কনফিগার করে SSH Key Pair টি তৈরি করে নিন:
 
 ```bash
+# ধাপ ০.১: AWS CLI-তে বর্তমান সেশনের কী ও রিজিয়ন সেট করুন
+aws configure
+# AWS Access Key ID: [আপনার আজকের সেশনের AccessKey]
+# AWS Secret Access Key: [আপনার আজকের সেশনের SecretKey]
+# Default region name: ap-southeast-1
+# Default output format: json
+
+# (যদি কী ASIA দিয়ে শুরু হয়, তবে টোকেন এক্সপোর্ট করুন):
+# export AWS_SESSION_TOKEN="[আপনার সেশনের SessionToken]"
+# export AWS_DEFAULT_REGION="ap-southeast-1"
+
+# ধাপ ০.২: SSH Key Pair তৈরি করুন (Terraform EC2 তৈরির পূর্বশর্ত)
 mkdir -p ~/.ssh
-aws ec2 create-key-pair --key-name shoplite-key --query 'KeyMaterial' --output text > ~/.ssh/shoplite-key.pem
+aws ec2 create-key-pair --key-name shoplite-key --region ap-southeast-1 --query 'KeyMaterial' --output text > ~/.ssh/shoplite-key.pem
 chmod 400 ~/.ssh/shoplite-key.pem
+
+# ভেরিফাই করুন (ভেতরে Private Key আসছে কি না):
+head -n 2 ~/.ssh/shoplite-key.pem
 ```
-* **প্রভাব:** AWS-এ `shoplite-key` নামের Key Pair তৈরি হলো যা Terraform ইনস্ট্যান্স লঞ্চের সময় ব্যবহার করবে।
+* **প্রভাব:** AWS-এ `shoplite-key` তৈরি হলো যা Terraform ইনস্ট্যান্স লঞ্চের সময় আবশ্যক।
 
 ---
 
-## 📋 Phase 1: AWS ক্লাউড ইনফ্রাস্ট্রাকচার প্রোভিশনিং (Terraform)
+## 📋 Phase 1: AWS ক্লাউড ইনফ্রাস্ট্রাকচার প্রোভিশনিং (Terraform) ➔ 🖥️ `[TERMINAL 1: Poridhi Web Terminal]`
 
 ### 🖥️ টার্মিনাল: **Terminal 1 (Poridhi Web Terminal)**
 * **উদ্দেশ্য:** AWS-এ VPC, প্রাইভেট সাবনেট, সিকিউরিটি গ্রুপ, ALB, ECR এবং ৩টি EC2 নোড স্বয়ংক্রিয়ভাবে তৈরি করা।
@@ -103,7 +118,7 @@ terraform output
 
 ---
 
-## 📦 Phase 2: সম্পূর্ণ অটোমেটেড CI/CD পাইপলাইন (GitHub Actions দিয়ে ইমেজ বিল্ড ও ECR পুশ)
+## 📦 Phase 2: সম্পূর্ণ অটোমেটেড CI/CD পাইপলাইন ➔ 🌐 `[BROWSER: GitHub Actions]`
 
 ### 🌐 প্ল্যাটফর্ম: **GitHub Actions & Secrets (Question 7 Automation)**
 * **উদ্দেশ্য:** পাইথন FastAPI, Worker এবং Web-এর সোর্স কোড থেকে Pytest ইউনিট টেস্ট, Trivy সিকিউরিটি স্ক্যান এবং মাল্টি-স্টেজ OCI ইমেজ স্বয়ংক্রিয়ভাবে বিল্ড করে AWS ECR-এ আপলোড করা।
@@ -129,7 +144,7 @@ terraform output
 
 ---
 
-## 🔐 Phase 3: SSH দিয়ে কন্ট্রোল প্লেনে সরাসরি লগইন (SSM Bypass Mode)
+## 🔐 Phase 3: SSH দিয়ে কন্ট্রোল প্লেনে সরাসরি লগইন ➔ 🖥️ `[TERMINAL 1 ➔ TERMINAL 2 Transition]`
 
 ### 🖥️ টার্মিনাল: **Terminal 1 ➔ Terminal 2 ট্রানজিশন**
 * **উদ্দেশ্য:** SSM-এর SCP পলিসি রেস্ট্রিকশন বাইপাস করে কন্ট্রোল প্লেনের পাবলিক আইপি দিয়ে সরাসরি SSH লগইন করা।
@@ -157,9 +172,9 @@ chmod 600 ~/.ssh/id_rsa
 
 ---
 
-## ☸️ Phase 4: কুবারনেটিস ক্লাস্টার বুটস্ট্র্যাপ (Ansible Automation)
+## ☸️ Phase 4: কুবারনেটিস ক্লাস্টার বুটস্ট্র্যাপ (Ansible) ➔ 🖥️ `[TERMINAL 2: Control Plane Node]`
 
-### 🖥️ টার্মিনাল: **Terminal 2 (Control Plane SSM Session)**
+### 🖥️ টার্মিনাল: **Terminal 2 (Control Plane SSM/SSH Session)**
 * **উদ্দেশ্য:** কন্টেইনারডি, কুবারনেটিস v1.30, ফ্ল্যানেল নেটওয়ার্ক এবং নোড জয়েন স্বয়ংক্রিয়ভাবে সম্পন্ন করা।
 
 #### ধাপ ১: GitOps রিপোজিটরি ক্লোন
@@ -208,9 +223,9 @@ kubectl get nodes -o wide
 
 ---
 
-## 🌐 Phase 5: Nginx Ingress Controller ও ECR Secret কনফিগারেশন
+## 🌐 Phase 5: Nginx Ingress Controller ও ECR Secret কনফিগারেশন ➔ 🖥️ `[TERMINAL 2 / TERMINAL 1]`
 
-### 🖥️ টার্মিনাল: **Terminal 2 (Control Plane)**
+### 🖥️ টার্মিনাল: **Terminal 2 (Control Plane)** (ধাপ ৩ এর অপশন 'ক' রান হবে **Terminal 1** থেকে)
 * **উদ্দেশ্য:** ALB থেকে ট্রাফিক পাওয়ার জন্য ইনগ্রেস বসানো এবং প্রাইভেট ECR থেকে ইমেজ নামানোর পারমিশন তৈরি করা।
 
 #### ধাপ ১: Nginx Ingress Controller ইনস্টল করা
@@ -254,7 +269,7 @@ kubectl create secret docker-registry ecr-secret \
 
 ---
 
-## 🚀 Phase 6: সম্পূর্ণ অ্যাপ্লিকেশন ডিপ্লয়মেন্ট (Helm Chart)
+## 🚀 Phase 6: সম্পূর্ণ অ্যাপ্লিকেশন ডিপ্লয়মেন্ট (Helm Chart) ➔ 🖥️ `[TERMINAL 2: Control Plane Node]`
 
 ### 🖥️ টার্মিনাল: **Terminal 2 (Control Plane)**
 * **উদ্দেশ্য:** একটিমাত্র কমান্ড দিয়ে PostgreSQL, Redis, Python API, Worker, Web Frontend এবং Argo Rollouts ডিপ্লয় করা।
@@ -282,7 +297,7 @@ kubectl get pods -n shoplite -w
 
 ---
 
-## 📊 Phase 7: সম্পূর্ণ অবজারভেবিলিটি স্ট্যাক ডিপ্লয়মেন্ট (LGTM Stack)
+## 📊 Phase 7: সম্পূর্ণ অবজারভেবিলিটি স্ট্যাক ডিপ্লয়মেন্ট (LGTM Stack) ➔ 🖥️ `[TERMINAL 2: Control Plane Node]`
 
 ### 🖥️ টার্মিনাল: **Terminal 2 (Control Plane)**
 * **উদ্দেশ্য:** Prometheus, Grafana, Loki এবং Tempo সম্পূর্ণ অটোমেশন স্ক্রিপ্টের মাধ্যমে চালু করা।
@@ -307,9 +322,9 @@ kubectl port-forward svc/grafana 3000:80 -n observability --address 0.0.0.0 &
 
 ---
 
-## 🌟 Phase 8: এক্সট্রা ১০ বোনাস মার্কস ও ক্যাওস ইঞ্জিনিয়ারিং ডেমো
+## 🌟 Phase 8: এক্সট্রা ১০ বোনাস মার্কস ও ক্যাওস ইঞ্জিনিয়ারিং ডেমো ➔ 🖥️ `[TERMINAL 2: Control Plane]` & 🌐 `[BROWSER]`
 
-### ১. বোনাস ১: Argo Rollouts দিয়ে ক্যানারি প্রোগ্রেসিভ ডেলিভারি (+৫ মার্কস)
+### 🖥️ টার্মিনাল: **Terminal 2 (Control Plane)**
 ```bash
 kubectl argo rollouts get rollout shoplite-backend -n shoplite --watch
 ```
