@@ -224,7 +224,7 @@ git pull origin main
 helm upgrade --install shoplite ./helm/shoplite -n shoplite --create-namespace
 
 # Deploy LGTM Observability Stack (Prometheus, Loki, Tempo, Grafana)
-cd ~/shoplite-gitops/observability
+cd ~/shoplite-app/observability
 chmod +x deploy-observability.sh
 ./deploy-observability.sh
 

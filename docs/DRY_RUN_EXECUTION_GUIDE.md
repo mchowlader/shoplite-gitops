@@ -303,7 +303,7 @@ kubectl get pods -n shoplite -w
 * **উদ্দেশ্য:** Prometheus, Grafana, Loki এবং Tempo সম্পূর্ণ অটোমেশন স্ক্রিপ্টের মাধ্যমে চালু করা।
 
 ```bash
-cd ~/shoplite-gitops/observability
+cd ~/shoplite-app/observability
 chmod +x deploy-observability.sh
 ./deploy-observability.sh
 ```
@@ -335,7 +335,7 @@ kubectl argo rollouts get rollout shoplite-backend -n shoplite --watch
 
 ### ২. বোনাস ২: ক্যাওস সিমুলেশন ও সেলফ-হিলিং (+৫ মার্কস)
 ```bash
-cd ~/shoplite-gitops/runbooks
+cd ~/shoplite-app/runbooks
 chmod +x chaos-simulation.sh
 ./chaos-simulation.sh memory
 ```
