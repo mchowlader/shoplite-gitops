@@ -1,0 +1,36 @@
+# ==============================================================================
+# ShopLite Observability: Datasources, Golden Signals Dashboard, ServiceMonitors,
+# PrometheusRule Alerts, and Grafana Ingress (Kustomize bundle from monitoring/)
+# Sync Wave 2: Applies after Prometheus Operator CRDs (Wave 0) are registered.
+# ==============================================================================
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: monitoring-config
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/mchowlader/shoplite-app.git
+    targetRevision: main
+    path: monitoring
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+    retry:
+      limit: 8
+      backoff:
+        duration: 10s
+        factor: 2
+        maxDuration: 3m
