@@ -8,7 +8,7 @@ global:
 frontend:
   replicaCount: 2
   image:
-    repository: shoplite/web
+    repository: 635067603641.dkr.ecr.ap-southeast-1.amazonaws.com/shoplite/web
     tag: "latest"
   resources:
     requests:
@@ -21,7 +21,7 @@ frontend:
 backend:
   replicaCount: 2
   image:
-    repository: shoplite/catalog-api
+    repository: 635067603641.dkr.ecr.ap-southeast-1.amazonaws.com/shoplite/catalog-api
     tag: "latest"
   autoscaling:
     enabled: true
@@ -38,7 +38,7 @@ backend:
 worker:
   replicaCount: 1
   image:
-    repository: shoplite/order-worker
+    repository: 635067603641.dkr.ecr.ap-southeast-1.amazonaws.com/shoplite/order-worker
     tag: "latest"
   autoscaling:
     enabled: true
