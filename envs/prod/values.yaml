@@ -1,41 +1,32 @@
 # ==============================================================================
-# ShopLite: Production Environment Helm Overrides (Question 5)
-# Optimized for high availability, zero downtime, and robust performance
+# ShopLite: Production Environment Helm Overrides (Question 5, 7 & 8)
+# Note for Question 8 Chaos Day: chaos flags are disabled by default.
 # ==============================================================================
-environment: prod
-
-backend:
-  replicaCount: 3
-  image:
-    tag: "v1.0.0"
-  resources:
-    requests:
-      cpu: 200m
-      memory: 256Mi
-    limits:
-      cpu: 1000m
-      memory: 1Gi
-  autoscaling:
-    enabled: true
-    minReplicas: 3
-    maxReplicas: 10
+global:
+  environment: production
 
 frontend:
-  replicaCount: 3
+  replicaCount: 2
   image:
-    tag: "v1.0.0"
+    repository: shoplite/web
+    tag: "latest"
   resources:
     requests:
       cpu: 50m
       memory: 64Mi
     limits:
-      cpu: 250m
+      cpu: 200m
       memory: 256Mi
 
-worker:
+backend:
   replicaCount: 2
   image:
-    tag: "v1.0.0"
+    repository: shoplite/catalog-api
+    tag: "latest"
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 6
   resources:
     requests:
       cpu: 100m
@@ -44,27 +35,75 @@ worker:
       cpu: 500m
       memory: 512Mi
 
-postgres:
+worker:
   replicaCount: 1
+  image:
+    repository: shoplite/order-worker
+    tag: "latest"
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
   resources:
     requests:
-      cpu: 200m
-      memory: 512Mi
+      cpu: 50m
+      memory: 64Mi
     limits:
-      cpu: 1000m
-      memory: 2Gi
+      cpu: 300m
+      memory: 256Mi
+
+postgres:
+  replicaCount: 1
+  auth:
+    existingSecret: "shoplite-db-secret"
+  persistence:
+    size: 4Gi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+
+chaos:
+  latencyMs: "0"
+  errorRate: "0.0"
+  memoryLeak: "false"
+  slowDb: "false"
+
+argoRollouts:
+  enabled: false
+
+canary:
+  enabled: false
 
 ingress:
   enabled: true
   className: nginx
   hosts:
-    - host: shoplite.prod.local
+    - host: ""
       paths:
-        - path: /api
-          pathType: Prefix
+        - path: /healthz
+          pathType: Exact
+          service: backend
+          port: 8000
+        - path: /readyz
+          pathType: Exact
+          service: backend
+          port: 8000
+        - path: /metrics
+          pathType: Exact
           service: backend
           port: 8000
         - path: /
           pathType: Prefix
           service: frontend
           port: 80
+  apiPath:
+    enabled: true
+    host: ""
+    path: /api(/|$)(.*)
+    rewriteTarget: /$2
+    service: backend
+    port: 8000

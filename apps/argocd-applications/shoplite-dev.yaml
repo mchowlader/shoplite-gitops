@@ -1,0 +1,45 @@
+# ==============================================================================
+# ShopLite: ArgoCD Development Application (Question 7.1c)
+# Multi-source: chart from shoplite-app + overrides from shoplite-gitops
+# Sync Policy: Automated sync + prune + self-healing
+# ==============================================================================
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: shoplite-dev
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  labels:
+    app.kubernetes.io/name: shoplite
+    environment: dev
+spec:
+  project: default
+  sources:
+    - repoURL: https://github.com/mchowlader/shoplite-app.git
+      targetRevision: main
+      path: helm/shoplite
+      helm:
+        releaseName: shoplite
+        valueFiles:
+          - $values/envs/dev/values.yaml
+    - repoURL: https://github.com/mchowlader/shoplite-gitops.git
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: shoplite-dev
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ApplyOutOfSyncOnly=true
+      - PruneLast=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
