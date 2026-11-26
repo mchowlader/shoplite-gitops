@@ -9,7 +9,7 @@ frontend:
   replicaCount: 1
   image:
     repository: 635067603641.dkr.ecr.ap-southeast-1.amazonaws.com/shoplite/web
-    tag: "sha-5a7e746"
+    tag: "sha-2f111b3"
   resources:
     requests:
       cpu: 25m
@@ -22,7 +22,7 @@ backend:
   replicaCount: 1
   image:
     repository: 635067603641.dkr.ecr.ap-southeast-1.amazonaws.com/shoplite/catalog-api
-    tag: "sha-5a7e746"
+    tag: "sha-2f111b3"
   autoscaling:
     enabled: false
   resources:
@@ -37,7 +37,7 @@ worker:
   replicaCount: 1
   image:
     repository: 635067603641.dkr.ecr.ap-southeast-1.amazonaws.com/shoplite/order-worker
-    tag: "sha-5a7e746"
+    tag: "sha-2f111b3"
   autoscaling:
     enabled: true
     minReplicas: 1
